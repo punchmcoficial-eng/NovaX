@@ -1,241 +1,82 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova Midnight Club • Dashboard & Oficial</title>
-    <script src="https://tailwindcss.com"></script>
+    <title>NovaX • Nova Midnight Club</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; background-color: #07070c; color: #f4f4f5; }
-        .neon-card { background: rgba(18, 18, 28, 0.85); border: 1px solid rgba(112, 0, 255, 0.35); box-shadow: 0 0 25px rgba(112, 0, 255, 0.12); backdrop-filter: blur(12px); }
-        .neon-btn { background: linear-gradient(90deg, #7000ff, #00d4ff); transition: all 0.2s; }
-        .neon-btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(112, 0, 255, 0.6); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Space Grotesk', sans-serif; background: radial-gradient(circle at top right, #1b0a33, #07070c 60%); color: #f4f4f5; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        nav { border-bottom: 1px solid rgba(112, 0, 255, 0.3); background: rgba(7, 7, 12, 0.85); padding: 18px 8%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; font-size: 1.3rem; background: linear-gradient(90deg, #a855f7, #00f5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .badge { padding: 6px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; background: #18181b; border: 1px solid #3f3f46; color: #a1a1aa; }
+        .badge.online { background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #34d399; }
+        main { max-width: 1150px; margin: 0 auto; padding: 60px 5%; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; align-items: center; }
+        @media (max-width: 850px) { main { grid-template-columns: 1fr; } }
+        .pill { display: inline-block; padding: 6px 14px; border-radius: 99px; background: rgba(112, 0, 255, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #d8b4fe; font-size: 0.8rem; margin-bottom: 20px; }
+        h1 { font-size: 3.4rem; line-height: 1.1; margin-bottom: 20px; }
+        h1 span { background: linear-gradient(90deg, #a855f7, #ec4899, #00f5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p.desc { color: #a1a1aa; font-size: 1.1rem; line-height: 1.6; margin-bottom: 32px; }
+        .actions { display: flex; gap: 15px; flex-wrap: wrap; }
+        .btn-primary { padding: 15px 34px; border-radius: 12px; background: linear-gradient(90deg, #7000ff, #00c3ff); color: #fff; font-weight: 700; text-decoration: none; box-shadow: 0 0 25px rgba(112, 0, 255, 0.45); transition: 0.2s; font-size: 1.05rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 245, 255, 0.6); }
+        .btn-secondary { padding: 15px 24px; border-radius: 12px; background: #12121a; border: 1px solid #27272a; color: #e4e4e7; font-weight: 600; text-decoration: none; transition: 0.2s; }
+        .btn-secondary:hover { border-color: #00f5ff; }
+        .terminal { background: #0d0d14; border: 1px solid rgba(112, 0, 255, 0.4); border-radius: 18px; padding: 24px; font-family: monospace; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .dots { display: flex; gap: 8px; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid #1f1f2e; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .terminal p { margin-bottom: 10px; font-size: 0.92rem; }
+        footer { text-align: center; padding: 24px; border-top: 1px solid #18181b; color: #71717a; font-size: 0.85rem; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-purple-600 selection:text-white">
-
-    <!-- NAVBAR -->
-    <nav class="border-b border-purple-900/40 bg-black/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-purple-500 animate-ping"></span>
-                <span class="font-bold text-xl tracking-wider bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">NOVA MIDNIGHT CLUB</span>
-            </div>
-            <div class="flex items-center gap-4">
-                <div id="badge-status" class="px-3 py-1 rounded-full text-xs font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700">
-                    ● Conectando...
-                </div>
-                <button onclick="abrirLogin()" id="btn-nav-staff" class="px-4 py-2 rounded-lg text-sm font-bold bg-purple-600/20 border border-purple-500 text-purple-300 hover:bg-purple-600 hover:text-white transition">
-                    🛡️ Acceso Staff
-                </button>
-            </div>
-        </div>
+<body>
+    <nav>
+        <div class="logo">⚡ NOVAX • MIDNIGHT CLUB</div>
+        <span id="badge-status" class="badge">● Conectando...</span>
     </nav>
 
-    <!-- VISTA PRINCIPAL (PORTADA + TERMINAL EN VIVO) -->
-    <main id="vista-publica" class="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center">
+    <main>
         <div>
-            <div class="inline-block px-3 py-1 mb-4 rounded-full bg-purple-950/60 border border-purple-500/40 text-purple-300 text-xs font-semibold">
-                ● Sistema en línea • v3.5 Cloud
-            </div>
-            <h1 class="text-5xl md:text-6xl font-bold leading-tight mb-6">
-                El motor de tu <span class="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">comunidad.</span>
-            </h1>
-            <p class="text-zinc-400 text-lg mb-8">
-                Moderación automatizada, soporte por tickets, vinculación con Roblox y control total de <strong>Nova Midnight Club</strong> en tiempo real.
-            </p>
-            <div class="flex flex-wrap gap-4">
-                <button onclick="abrirLogin()" class="neon-btn px-6 py-3 rounded-xl font-bold text-white shadow-lg">
-                    Entrar al Dashboard →
-                </button>
-                <a href="https://uptimerobot.com" target="_blank" class="px-6 py-3 rounded-xl font-bold bg-zinc-900 border border-zinc-700 hover:border-cyan-400 transition">
-                    📊 Estado 24/7
-                </a>
+            <div class="pill">● Sistema en línea • v3.5 Cloud</div>
+            <h1>El motor de tu <span>comunidad.</span></h1>
+            <p class="desc">Moderación automatizada, sistema de tickets en 4 categorías, integración con Roblox y control total de <strong>Nova Midnight Club</strong> en tiempo real.</p>
+            <div class="actions">
+                <a href="login.html" class="btn-primary">Continuar →</a>
+                <a href="https://uptimerobot.com" target="_blank" class="btn-secondary">📊 Estado 24/7</a>
             </div>
         </div>
 
-        <!-- TERMINAL SIMULADA CON STATS REALES -->
-        <div class="neon-card rounded-2xl p-6 font-mono text-sm">
-            <div class="flex items-center gap-2 mb-4 pb-3 border-b border-zinc-800">
-                <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-                <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                <span class="ml-2 text-zinc-500 text-xs">nova-bot — cloud-shell</span>
+        <div class="terminal">
+            <div class="dots">
+                <span class="dot" style="background:#ef4444"></span>
+                <span class="dot" style="background:#eab308"></span>
+                <span class="dot" style="background:#22c55e"></span>
+                <span style="color:#71717a; font-size:0.8rem; margin-left:8px;">novax — cloud-shell</span>
             </div>
-            <div class="space-y-2 text-zinc-300">
-                <p class="text-purple-400">$ npx nova-bot --status</p>
-                <p id="term-bot" class="text-emerald-400">✔ Conectando con Render Cloud...</p>
-                <p id="term-members" class="text-cyan-400">✔ Miembros sincronizados: cargando...</p>
-                <p class="text-zinc-400">✔ Sistema de Tickets: <span class="text-emerald-400">Activo (4 categorías)</span></p>
-                <p class="text-zinc-400">✔ API de Moderación Staff: <span class="text-emerald-400">Protegida</span></p>
-                <p class="text-purple-400 animate-pulse">▊</p>
-            </div>
+            <p style="color:#c084fc">$ npx novax --status</p>
+            <p id="term-bot" style="color:#34d399">✔ Conectando con Render Cloud...</p>
+            <p id="term-members" style="color:#38bdf8">✔ Miembros sincronizados: cargando...</p>
+            <p style="color:#a1a1aa">✔ Central de Soporte: <span style="color:#34d399">Activa (4 categorías)</span></p>
+            <p style="color:#a1a1aa">✔ API de Staff: <span style="color:#34d399">Encriptada</span></p>
         </div>
     </main>
-    <!-- MODAL DE LOGIN PARA STAFF -->
-    <div id="modal-login" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="neon-card rounded-2xl p-8 max-w-md w-full">
-            <h2 class="text-2xl font-bold mb-2">🛡️ Verificación de Staff</h2>
-            <p class="text-zinc-400 text-sm mb-6">Ingresa la clave secreta configurada en Render para desbloquear el panel de control.</p>
-            <input type="password" id="input-pass" placeholder="Contraseña de Staff..." class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 focus:border-purple-500 outline-none mb-4">
-            <p id="login-error" class="text-red-400 text-xs mb-3 hidden">❌ Contraseña incorrecta.</p>
-            <div class="flex gap-3">
-                <button onclick="verificarStaff()" class="neon-btn flex-1 py-3 rounded-xl font-bold">Desbloquear</button>
-                <button onclick="cerrarLogin()" class="px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 font-semibold">Cancelar</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- DASHBOARD PRIVADO DE STAFF (SE MUESTRA AL INICIAR SESIÓN) -->
-    <section id="vista-dashboard" class="hidden max-w-6xl mx-auto px-6 py-10 w-full space-y-8">
-        <div class="flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <h2 class="text-3xl font-bold">🎛️ Panel de Control • Staff</h2>
-                <p class="text-zinc-400 text-sm">Conectado en vivo con <span class="text-cyan-400 font-semibold">Nova Midnight Club</span></p>
-            </div>
-            <button onclick="cerrarSesion()" class="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/50 text-red-300 text-sm hover:bg-red-600 hover:text-white transition">
-                Cerrar Sesión
-            </button>
-        </div>
-
-        <!-- TARJETAS DE ESTADÍSTICAS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="neon-card p-6 rounded-2xl">
-                <p class="text-zinc-400 text-xs uppercase">Estado del Bot</p>
-                <p id="stat-estado" class="text-2xl font-bold text-emerald-400 mt-1">🟢 En Línea</p>
-            </div>
-            <div class="neon-card p-6 rounded-2xl">
-                <p class="text-zinc-400 text-xs uppercase">Miembros Totales</p>
-                <p id="stat-miembros" class="text-2xl font-bold text-purple-400 mt-1">--</p>
-            </div>
-            <div class="neon-card p-6 rounded-2xl">
-                <p class="text-zinc-400 text-xs uppercase">Latencia (Ping)</p>
-                <p id="stat-ping" class="text-2xl font-bold text-cyan-400 mt-1">-- ms</p>
-            </div>
-        </div>
-
-        <!-- HERRAMIENTAS DE CONTROL -->
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- ENVIAR COMUNICADO EMBED -->
-            <div class="neon-card p-6 rounded-2xl space-y-4">
-                <h3 class="text-xl font-bold text-purple-300">📢 Enviar Comunicado (Embed)</h3>
-                <select id="select-canal-embed" class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 outline-none text-sm"></select>
-                <input type="text" id="embed-titulo" placeholder="Título del comunicado..." class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 outline-none text-sm">
-                <textarea id="embed-texto" rows="4" placeholder="Escribe el mensaje del anuncio..." class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 outline-none text-sm"></textarea>
-                <button onclick="enviarEmbed()" class="neon-btn w-full py-3 rounded-xl font-bold">Publicar en Discord 🚀</button>
-            </div>
-
-            <!-- MODERACIÓN RÁPIDA (LOCK / UNLOCK / BAN) -->
-            <div class="space-y-6">
-                <div class="neon-card p-6 rounded-2xl space-y-4">
-                    <h3 class="text-xl font-bold text-cyan-300">🔒 Bloquear / Desbloquear Canal</h3>
-                    <select id="select-canal-lock" class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 outline-none text-sm"></select>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="controlCanal('lock')" class="py-3 rounded-xl font-bold bg-red-600/80 hover:bg-red-600 transition">🔒 Lock</button>
-                        <button onclick="controlCanal('unlock')" class="py-3 rounded-xl font-bold bg-emerald-600/80 hover:bg-emerald-600 transition">🔓 Unlock</button>
-                    </div>
-                </div>
-
-                <div class="neon-card p-6 rounded-2xl space-y-4">
-                    <h3 class="text-xl font-bold text-red-400">🔨 Baneo Directo por ID</h3>
-                    <input type="text" id="ban-userid" placeholder="ID del usuario de Discord..." class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 outline-none text-sm">
-                    <input type="text" id="ban-razon" placeholder="Motivo del baneo..." class="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-700 outline-none text-sm">
-                    <button onclick="banearUsuario()" class="w-full py-3 rounded-xl font-bold bg-red-600 hover:bg-red-700 transition">Ejecutar Ban</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="border-t border-zinc-900 py-6 text-center text-zinc-500 text-xs">
-        Nova Midnight Club © 2026 • Desarrollado por PunchMC & Equipo
-    </footer>
+    <footer>Nova Midnight Club © 2026 • Desarrollado por PunchMC & Equipo</footer>
 
     <script>
-        const API_URL = 'https://onrender.com';
-        let staffPass = localStorage.getItem('nova_staff_pass') || '';
-
-        async function cargarStats() {
-            try {
-                const res = await fetch(API_URL + '/api/stats');
-                const data = await res.json();
-                document.getElementById('badge-status').innerHTML = '🟢 Bot Online (' + data.ping + 'ms)';
-                document.getElementById('badge-status').className = 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-600';
-                document.getElementById('term-bot').innerText = '✔ Bot conectado • latencia ' + data.ping + 'ms';
-                document.getElementById('term-members').innerText = '✔ Miembros activos en el club: ' + data.miembros;
-                document.getElementById('stat-miembros').innerText = data.miembros;
-                document.getElementById('stat-ping').innerText = data.ping + ' ms';
-
-                const opciones = data.canales.map(c => `<option value="${c.id}">#${c.nombre}</option>`).join('');
-                document.getElementById('select-canal-embed').innerHTML = opciones;
-                document.getElementById('select-canal-lock').innerHTML = opciones;
-            } catch (e) {
-                document.getElementById('badge-status').innerText = '🟡 Despertando Render...';
-            }
-        }
-
-        function abrirLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
-        function cerrarLogin() { document.getElementById('modal-login').classList.add('hidden'); }
-
-        async function verificarStaff() {
-            const pass = document.getElementById('input-pass').value;
-            const res = await fetch(API_URL + '/api/accion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-staff-pass': pass },
-                body: JSON.stringify({ tipo: 'login' })
+        fetch('https://onrender.com')
+            .then(r => r.json())
+            .then(data => {
+                const badge = document.getElementById('badge-status');
+                badge.textContent = '🟢 Bot Online (' + data.ping + 'ms)';
+                badge.classList.add('online');
+                document.getElementById('term-bot').textContent = '✔ Bot conectado • latencia ' + data.ping + 'ms';
+                document.getElementById('term-members').textContent = '✔ Miembros activos en el club: ' + data.miembros;
+            })
+            .catch(() => {
+                document.getElementById('badge-status').textContent = '🟡 Despertando servidor...';
             });
-            if (res.ok) {
-                staffPass = pass;
-                localStorage.setItem('nova_staff_pass', pass);
-                cerrarLogin();
-                mostrarDashboard();
-            } else {
-                document.getElementById('login-error').classList.remove('hidden');
-            }
-        }
-
-        function mostrarDashboard() {
-            document.getElementById('vista-publica').classList.add('hidden');
-            document.getElementById('vista-dashboard').classList.remove('hidden');
-            document.getElementById('btn-nav-staff').classList.add('hidden');
-        }
-
-        function cerrarSesion() {
-            localStorage.removeItem('nova_staff_pass');
-            location.reload();
-        }
-
-        async function enviarOrden(payload) {
-            const res = await fetch(API_URL + '/api/accion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-staff-pass': staffPass },
-                body: JSON.stringify(payload)
-            });
-            if (res.ok) alert('✅ Acción ejecutada en Discord correctamente.');
-            else alert('❌ Error al ejecutar acción. Verifica los permisos del bot.');
-        }
-
-        function enviarEmbed() {
-            enviarOrden({
-                tipo: 'embed',
-                canalId: document.getElementById('select-canal-embed').value,
-                titulo: document.getElementById('embed-titulo').value,
-                texto: document.getElementById('embed-texto').value
-            });
-        }
-
-        function controlCanal(tipo) {
-            enviarOrden({ tipo, canalId: document.getElementById('select-canal-lock').value });
-        }
-
-        function banearUsuario() {
-            const userId = document.getElementById('ban-userid').value.trim();
-            if (!userId) return alert('⚠️ Escribe el ID del usuario.');
-            enviarOrden({ tipo: 'ban', userId, razon: document.getElementById('ban-razon').value });
-        }
-
-        cargarStats();
-        if (staffPass) mostrarDashboard();
     </script>
 </body>
 </html>
