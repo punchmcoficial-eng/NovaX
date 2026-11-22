@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaX • Dashboard Staff</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Space Grotesk', sans-serif; background: #07070c; color: #f4f4f5; min-height: 100vh; }
+        nav { border-bottom: 1px solid rgba(112, 0, 255, 0.3); background: #0b0b12; padding: 16px 8%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; font-size: 1.2rem; background: linear-gradient(90deg, #a855f7, #00f5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .logout { background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid #dc2626; padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+        .logout:hover { background: #dc2626; color: #fff; }
+        .container { max-width: 1120px; margin: 40px auto; padding: 0 5%; }
+        .card { background: #10101a; border: 1px solid rgba(112, 0, 255, 0.35); border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        @media (max-width: 800px) { .stats-grid, .tools-grid { grid-template-columns: 1fr; } }
+        .stat-val { font-size: 1.9rem; font-weight: 700; margin-top: 6px; }
+        input, select, textarea { width: 100%; padding: 12px 14px; border-radius: 10px; background: #181824; border: 1px solid #2e2e42; color: #fff; font-family: inherit; margin-top: 10px; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #a855f7; }
+        .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; background: linear-gradient(90deg, #7000ff, #00c3ff); color: #fff; font-weight: 700; cursor: pointer; margin-top: 14px; font-size: 0.95rem; }
+        .btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">⚡ NOVAX • PANEL STAFF</a>
+        <button class="logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+    </nav>
+
+    <div class="container">
+        <h1 style="margin-bottom:24px;">🎛️ Control de Nova Midnight Club</h1>
+
+        <div class="stats-grid">
+            <div class="card"><span style="color:#a1a1aa; font-size:0.85rem;">ESTADO DEL BOT</span><div class="stat-val" style="color:#34d399;">🟢 En Línea</div></div>
+            <div class="card"><span style="color:#a1a1aa; font-size:0.85rem;">MIEMBROS TOTALES</span><div id="stat-miembros" class="stat-val" style="color:#c084fc;">--</div></div>
+            <div class="card"><span style="color:#a1a1aa; font-size:0.85rem;">LATENCIA (PING)</span><div id="stat-ping" class="stat-val" style="color:#38bdf8;">-- ms</div></div>
+        </div>
+
+        <div class="tools-grid">
+            <div class="card">
+                <h3 style="color:#d8b4fe;">📢 Enviar Comunicado (Embed)</h3>
+                <select id="canal-embed"></select>
+                <input type="text" id="embed-titulo" placeholder="Título del comunicado...">
+                <textarea id="embed-texto" rows="4" placeholder="Escribe el mensaje del anuncio..."></textarea>
+                <button class="btn" onclick="enviarEmbed()">Publicar en Discord 🚀</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="card">
+                    <h3 style="color:#38bdf8;">🔒 Bloquear / Desbloquear Canal</h3>
+                    <select id="canal-lock"></select>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <button class="btn" style="background:#dc2626;" onclick="controlCanal('lock')">🔒 Lock</button>
+                        <button class="btn" style="background:#059669;" onclick="controlCanal('unlock')">🔓 Unlock</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="color:#f87171;">🔨 Banear por ID</h3>
+                    <input type="text" id="ban-id" placeholder="ID del usuario de Discord...">
+                    <input type="text" id="ban-razon" placeholder="Motivo del baneo...">
+                    <button class="btn" style="background:#b91c1c;" onclick="banear()">Ejecutar Ban</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'https://onrender.com';
+        const passGuardada = localStorage.getItem('nova_pass');
+
+        // Si entra directo sin contraseña, lo regresa a login.html
+        if (!passGuardada) {
+            window.location.href = 'login.html';
+        }
+
+        async function cargarDatos() {
+            const res = await fetch(API + '/api/stats').catch(() => null);
+            if (!res || !res.ok) return;
+            const data = await res.json();
+            document.getElementById('stat-miembros').textContent = data.miembros;
+            document.getElementById('stat-ping').textContent = data.ping + ' ms';
+            const opts = data.canales.map(c => `<option value="${c.id}">#${c.nombre}</option>`).join('');
+            document.getElementById('canal-embed').innerHTML = opts;
+            document.getElementById('canal-lock').innerHTML = opts;
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('nova_pass');
+            window.location.href = 'index.html';
+        }
+
+        async function ejecutar(payload) {
+            const res = await fetch(API + '/api/accion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-staff-pass': passGuardada },
+                body: JSON.stringify(payload)
+            });
+            alert(res.ok ? '✅ Acción ejecutada en Discord.' : '❌ Error al ejecutar. Revisa permisos o contraseña.');
+        }
+
+        function enviarEmbed() {
+            ejecutar({ tipo: 'embed', canalId: document.getElementById('canal-embed').value, titulo: document.getElementById('embed-titulo').value, texto: document.getElementById('embed-texto').value });
+        }
+        function controlCanal(tipo) {
+            ejecutar({ tipo, canalId: document.getElementById('canal-lock').value });
+        }
+        function banear() {
+            ejecutar({ tipo: 'ban', userId: document.getElementById('ban-id').value.trim(), razon: document.getElementById('ban-razon').value });
+        }
+
+        cargarDatos();
+    </script>
+</body>
+</html>
